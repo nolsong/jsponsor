@@ -1,0 +1,31 @@
+<link rel="import" href="../package.html">
+
+<template id="my-table">
+    <style>
+        table {
+            background-color: #d0e4fe;
+            outline-style: dotted;
+        }
+    </style>
+    <table>
+        <tr><td><content></content></td><td>{{content}}</td></tr>
+    </table>
+</template>
+
+<script>
+    (function() {
+        'use strict';
+
+        var pack = jSponsor.package('testPackage');
+        pack.view('my-table', {
+            document: document.currentScript.ownerDocument,
+            controller: {
+                dependency: ['$viewModel'],
+                constructor: function(viewModel) {
+                    viewModel.content = "Hellow my table!";
+                    console.log("***** create my table controller! *****");
+                }
+            }
+        });
+    })();
+</script>

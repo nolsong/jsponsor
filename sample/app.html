@@ -1,0 +1,31 @@
+<link rel="import" href="../fw/jsponsor.html">
+<link rel="import" href="components/package.html">
+
+<template id="my-app">
+    <jsponsor-app app="testApp">
+        <div id="placeholder"><span>Test App</span></div>
+        <my-table><b>OK I'm content in table</b></my-table>
+        <route-view></route-view>
+    </jsponsor-app>
+</template>
+
+<script>
+    (function() {
+        'use strict';
+
+        var app = jSponsor.app('testApp', {
+            packages: ['testPackage']
+        });
+
+        app.route([{
+            url: '/',
+            controller: 'myController',
+            view: 'main-page'
+        }]);
+
+        app.view('my-app', {
+            // ownerDocument를 생략할 수 있는 방법이 없을까?
+            document: document.currentScript.ownerDocument
+        });
+    })();
+</script>

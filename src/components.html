@@ -1,0 +1,48 @@
+<template id="jsponsor-app">
+    <!-- this is app-view -->
+    <content></content>
+</template>
+
+<template id="route-view"></template>
+
+<template id="js-input">
+    <input type="text">
+</template>
+
+<script>
+    (function() {
+        'use strict';
+
+        /*
+            shortcuts
+         */
+        var util = jSponsor.util,
+            ui = jSponsor.ui;
+
+        ui.registerViewComponent('jsponsor-app', document.currentScript.ownerDocument, function(element) {
+            var appName = util.getAttrValue(element.attributes, 'app');
+            console.log("------- " + appName + " is started! -------");
+        });
+
+        ui.registerViewComponent('route-view', document.currentScript.ownerDocument, function(element) {
+            var routeInfo = jSponsor.router.getRouteInfo('/');
+            if (!routeInfo) {
+                return;
+            }
+
+            var domView = document.createElement(routeInfo.view);
+            element.shadowRoot.appendChild(domView);
+        });
+
+        ui.registerViewComponent('js-input', document.currentScript.ownerDocument, function(element) {
+            var modelName = getAttrValue(element.attributes, 'model');
+
+            var inputDom = element.shadowRoot.querySelector('input');
+            inputDom.addEventListener('input', function() {
+                console.log("js-input changed!!! value: " + inputDom.value);
+
+            });
+        });
+    })();
+
+</script>

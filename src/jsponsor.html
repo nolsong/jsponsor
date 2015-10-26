@@ -1,0 +1,27 @@
+<script type="text/javascript" src="base.js"></script>
+<script type="text/javascript" src="util.js"></script>
+<script type="text/javascript" src="router.js"></script>
+<script type="text/javascript" src="injector.js"></script>
+<script type="text/javascript" src="ui.js"></script>
+<script type="text/javascript" src="package.js"></script>
+<script type="text/javascript" src="app.js"></script>
+<link rel="import" href="components.html">
+
+<script>
+    // 이 페이지는 각 모듈을 가져와 user interface를 제공해주는 모선과 같은 역할을 해야 한다.
+    jSponsor.app = function(appName, config) {
+        try {
+            return config ? this.appManager.createApplication(appName, config) : this.appManager.getApplication(appName);
+        } catch(e) {
+            jSponsor.util.exceptionHandle(e);
+        }
+    };
+
+    jSponsor.package = function(packName, requires) {
+        try {
+            return requires ? this.pkgMgr.createPackage(packName, requires) : this.pkgMgr.getPackage(packName);
+        } catch(e) {
+            jSponsor.util.exceptionHandle(e);
+        }
+    };
+</script>

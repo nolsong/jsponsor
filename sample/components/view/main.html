@@ -1,0 +1,38 @@
+<template id="main-page">
+    <style>
+        div {
+            background-color: yellowgreen;
+            width: 720px;
+            height: 680px;
+        }
+    </style>
+    <div js-if="onList">{{title}} user name: {{user.name}}, user age: {{user.getAge() + 1}}
+        <input type="text" model="title">
+        <label>{{title}}</label>
+        <ul js-loop="text in order.list">
+            <li>{{text}}<span>{{sub}}</span> {{user.getAge() + 1 + ' years old'}}</li>
+        </ul>
+        <button>destroy</button>
+        <div id="tab">
+            <my-table></my-table>
+        </div>
+    </div>
+</template>
+
+<script>
+    (function() {
+        'use strict';
+
+        var pack = jSponsor.package('testPackage');
+        pack.view('main-page', {
+            document: document.currentScript.ownerDocument,
+            ready: function(element) {
+                var button = element.shadowRoot.querySelector('button');
+                button.addEventListener('click', function() {
+                    var tableDiv = element.shadowRoot.querySelector('#tab');
+                    tableDiv.innerHTML = "";
+                });
+            }
+        });
+    })();
+</script>
