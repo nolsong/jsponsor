@@ -1,3 +1,9 @@
+/*
+ * Injector
+ *
+ * Injector allows other modules to get components by just name without knowing about how to create them.
+ * That make it easy to get decoupling between controller and service.
+ */
 (function() {
     'use strict';
 
@@ -25,20 +31,16 @@
                 throw injectorErr('not found', 'can not found {0} controller', name);
             }
 
-            // check it's dependency services
-            // 현재 new하지 않아서 return undefined일 것이다. 그렇다면 ActivatedUI 객체가 가진 controller 객체는 없을 것이다.
+            // check their dependency services
             var viewModel = null;
             var dependentArgs = resolveDependency(createInfo.dependency);
             if (dependentArgs && Array.isArray(dependentArgs) === true) {
                 var vmIndex = createInfo.dependency.indexOf('$viewModel');
                 viewModel = dependentArgs[vmIndex];
-                // 아래 bind 함수의 첫 인자가 binding할 객체이므로 null로 준다.
+                // put 'null' into the dependentArgs for bind method's first param.
                 dependentArgs.unshift(null);
             }
 
-            // ECMA5 이전에는 new와 apply를 함께 쓸 수 없어서 메튜가 만든 테크닉을 썼다고 한다.
-            // 하지만 이젠 bind 함수를 통해 생성자를 호출하며 spread 할 수 있다.
-            // ECMA6에서는 문법 자체에서 spread를 지원한다고 한다.
             var instance = new (Function.prototype.bind.apply(createInfo.constructor, dependentArgs));
             instance.viewModel = viewModel;
             return instance;
@@ -68,12 +70,12 @@
     };
 
     function handleDependency(name) {
-        // framework 내부 정의된 dependency 인가?
+        // check if this is private object
         switch(name) {
             case '$viewModel':
                 return {name: 'viewModel'};
         }
-        // 아니면 user custom service 이다.
+        // if not, this will be user custom service
         return injector.getService(name);
     }
     function resolveDependency(depList) {

@@ -1,3 +1,10 @@
+/*
+ * Package
+ *
+ * package is just bundle of components that will be able to reuse,
+ * so this provide an way to gather components.
+ * furthermore, package can be distributed through CDN.
+ */
 (function() {
     'use strict';
 
@@ -23,11 +30,7 @@
         getPackage: function(name) { return packages[name]; }
     };
 
-    /*
-        Package
-        component들에 대한 build info를 통합 관리
-        다른 package와 merge, dependency package들을 load하는 등의 역할을 한다.
-     */
+
     function createPackageInstance(name, requirePackages) {
         var buildData = {
             views: {},

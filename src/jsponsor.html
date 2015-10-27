@@ -8,7 +8,7 @@
 <link rel="import" href="components.html">
 
 <script>
-    // 이 페이지는 각 모듈을 가져와 user interface를 제공해주는 모선과 같은 역할을 해야 한다.
+    // This file provide clients with main interfaces.
     jSponsor.app = function(appName, config) {
         try {
             return config ? this.appManager.createApplication(appName, config) : this.appManager.getApplication(appName);

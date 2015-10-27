@@ -1,3 +1,11 @@
+/*
+ * Application
+ *
+ * user shall define this application object to use the routing, template features.
+ * they can add sub components such as view, controller, service to an application object directly,
+ * but it's recommended to use a package to collect reusable components at one place.
+ */
+
 (function() {
     'use strict';
 
@@ -7,13 +15,6 @@
     var registerViewComponent = jSponsor.ui.registerViewComponent.bind(jSponsor.ui),
         setService = jSponsor.injector.setService.bind(jSponsor.injector),
         setController = jSponsor.injector.setController.bind(jSponsor.injector),
-    /*
-            component.html에 <script src='route.js'>가 있을 때 아래 registerRoute( ) 호출 시
-            내부적인 this와 jSponsor.router가 서로 다른 객체를 가지고 있었다;;
-            component.html이 HTML import로 호출되어 중복된 script load는 100% 차단된 줄 알았는데
-            이와 관련된 side로 jSponsor.router 객체가 전역 객체에 새로 덥어 쓴 것이다...
-            이런 문제를 조심하자.
-         */
         registerRoute = jSponsor.router.register.bind(jSponsor.router);
 
     var util = jSponsor.util;
@@ -23,10 +24,13 @@
      */
     var appErr = util.errorFactory('App');
 
+
     /*
-     multiple app을 동시지원할 경우 router에서 현재 page의 href를 공유하므로 충돌이 생길 것이다.
-     하지만 router 부분을 제외하고는 동시에 여러 app을 정의하고 운용할 수도 있다.
-     기본 concept은 single app이지만 app manager를 통해 life cycle을 관리하도록 한다.
+     * Application Manager
+     *
+     * multiple application will not be supported,
+     * so if user define several application object, routing conflict exception will be arisen.
+     * appManager is responsible for managing app's life cycle and connecting app with package.
      */
     var apps = {};
 
