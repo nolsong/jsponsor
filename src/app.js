@@ -1,7 +1,7 @@
 /*
  * Application
  *
- * user shall define this application object to use the routing, template features.
+ * user shall define this application object to use the routing and template features.
  * they can add sub components such as view, controller, service to an application object directly,
  * but it's recommended to use a package to collect reusable components at one place.
  */

@@ -2,7 +2,7 @@
     'use strict';
 
 
-    // TODO: noop처럼 다양하게 편의를 제공하는 method들을 확장해 가자.(다량의 short-cut method 필요)
+    // TODO: add more utility methods to here
     var util = {
         noop: function() {},
         extend: function(dest, source) {

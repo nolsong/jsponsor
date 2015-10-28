@@ -31,7 +31,7 @@
                 throw injectorErr('not found', 'can not found {0} controller', name);
             }
 
-            // check their dependency services
+            // check their dependent services
             var viewModel = null;
             var dependentArgs = resolveDependency(createInfo.dependency);
             if (dependentArgs && Array.isArray(dependentArgs) === true) {

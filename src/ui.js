@@ -17,7 +17,11 @@
     var twoWayExprReg = /\{{2,2}[^\{\}]*\}{2,2}/g;
 
     /*
-        UI Manager interface
+     *   UI Manager
+     *
+     *   UI Manager provides controller with UI javascript hooking point about View
+     *   which is built in Web component.
+     *   Each View component has an UI object that will be managed by UI Manager.
      */
     var uiManager = {
         registerViewComponent : function (name, ownerDoc, ready, controller) {
@@ -28,16 +32,16 @@
                 this.createShadowRoot().appendChild(clone);
 
                 try {
-                    // register 당시 controller 정보가 있었다면 view component 정의에 의해 들어온 것!
+                    // if there is a controller when call this function, this comes from definition of view component.
                     if (controller) {
                         this.uiInstance = createUIInstance(name, this, injector.getController(name));
                     } else {
-                        // router에서 정의된 것인가?
+                        // check if this comes from router
                         var routeInfo = router.getRouteInfo(router.getCurrentUrl());
                         if (routeInfo.view === name) {
                             this.uiInstance = createUIInstance(name, this, injector.getController(routeInfo.controller));
                         }
-                        // 이 것도 아니라면 controller 없이 view만 존재하는 경우
+                        // if not any case, this view has no controller
                     }
                 } catch(e) {
                     util.exceptionHandle(e);
@@ -53,8 +57,9 @@
             };
 
             if (controller) {
-                // 이 때는 controller가 무명이므로 view name을 대신해서 쓴다.
-                // view component가 등록될 때 controller 정보를 등록해줘서 injector가 추후 생성할 수 있게 한다.
+                // in this case, controller will be anonymous
+                // so it's need to give view's name to controller alternatively
+                // register controller at here so that injector creates it when createdCallback is called
                 injector.setController(name, controller.dependency, controller.constructor);
             }
 
@@ -71,7 +76,7 @@
     }
 
     function destroyUIInstance(uiInstance) {
-        // TODO: UI instance와 관련된 view, controller등을 정리하고 notify
+        // TODO: post UI event after clear up this object
         //console.log("====== ok, destroy ui instance, name: " + uiInstance.viewName);
         uiInstance.clean();
         var index = uiInstances.indexOf(uiInstance);
@@ -95,14 +100,15 @@
 
 
         /*
-            Active UI interface
+         *  Active UI interface
+         *
+         *  viewModel will be injected into controller after create a view,
+         *  so let it go with an active UI object.
          */
         return {
             viewName: viewName,
             dom: domObj,
             controller: controller,
-            // controller 생성 시 viewModel이 생성되어 injection되므로 여기에서 controller 객체 연동 시에
-            // controller 소속의 viewModel 객체를 연결하자.
             viewModel: viewModel,
             clean: function() {
                 deepObserver.close();
@@ -282,22 +288,22 @@
             while(domStack.length > 0) {
                 var currDom = domStack.pop();
 
-                // 가장 먼저 conditional Dom sig부터 처리한다.
+                // first of all, handle conditional Dom signature
                 var bFind = self.findCDAttributes(currDom.attributes, function(operator, expr) {
                     self.childNodes.push(new CDTNode(currDom, {
                         operatorName: operator,
                         exprStr: expr
                     }, self.viewModel));
                 });
-                // conditional Dom tree는 CDTNode에 위임
+                // delegate child conditional-dom tree to CDTNode
                 if (bFind === true) {
                     continue;
                 }
 
-                // Text node 상 data binding 처리
+                // handle data binding expression on the text node
                 self.findDataBindTextNode(currDom.childNodes);
 
-                // 현재 element에 model attribute가 있다면 bind
+                // check if element has model attribute, if so bind them
                 checkBoundModelAttr(currDom);
 
                 // next
@@ -339,8 +345,7 @@
         updateNodes: function (chagedPath) {
             var self = this;
 
-            // TODO: 변경된 path의 child들도 모두 target에 포함 시킨다. tree 구조로 만들어 효율적으로 child들을 선별하도록 하자.
-            // 현재는 observed object를 통째로 덮어쓰면 해당 노드가 update되지 않을 것이다.
+            // TODO: change the dataBindMap data structure for performance
             var targets = self.dataBindMap[chagedPath];
             if (!targets) {
                 return;
@@ -493,7 +498,7 @@
                 return;
             }
 
-            // 첫 단계로 token을 추출하며 중위 표현식을 후위표현식으로 만들어 배열로 만들어 놓는다.
+            // first step - convert infix expressions into postfix while extracts token
             var self = this,
                 postfix = [],
                 operatorStack = [];
