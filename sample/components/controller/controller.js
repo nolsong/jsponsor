@@ -26,12 +26,16 @@
             viewModel.user.name = 'nolsong';
         }, 3000);
 
-        setTimeout(function() {
+        viewModel.movePage = function() {
             router.location('/secondPage');
-        }, 5000);
+        };
     });
 
-    pack.controller('secondCtrl', ['$viewModel'], function(viewModel) {
+    pack.controller('secondCtrl', ['$viewModel', '$router'], function(viewModel, router) {
         viewModel.title = 'This is second page!';
+
+        viewModel.movePage = function() {
+            router.location('/');
+        };
     });
 })();

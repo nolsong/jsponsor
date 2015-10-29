@@ -93,7 +93,7 @@
 
     function destroyUIInstance(uiInstance) {
         // TODO: post UI event after clear up this object
-        console.log("====== ok, destroy ui instance, name: " + uiInstance.viewName);
+        console.log("[UI Manager] destroy ui instance, name: " + uiInstance.viewName);
         uiInstance.clean();
         var index = uiInstances.indexOf(uiInstance);
         uiInstances.splice(index, 1);
@@ -188,6 +188,7 @@
                 }
             }
         },
+        eventBindList : ['js-click', 'js-keydown', 'js-keypress', 'js-keyup'],
         createCondition: function(info) {
             return {
                 operator: info ? this.operator[info.operatorName] : null,
@@ -319,6 +320,9 @@
                 // handle data binding expression on the text node
                 self.findDataBindTextNode(currDom.childNodes);
 
+                // check if element has event bind attribute, if so add an event listener
+                checkEventBindAttr(currDom);
+
                 // check if element has model attribute, if so bind them
                 checkBoundModelAttr(currDom);
 
@@ -338,6 +342,18 @@
 
                 dom.addEventListener('input', function() {
                     self.viewModel[attrModelName] = dom.value;
+                });
+            }
+
+            function checkEventBindAttr(dom) {
+
+                util.searchAttrs(dom.attributes, self.eventBindList, function(attrName, expr) {
+                    var exprInst = new Expression(expr, self.viewModel);
+
+                    // TODO: need to check this event listener will be removed automatically when dom is destroyed
+                    dom.addEventListener(attrName.replace('js-', ''), function() {
+                        exprInst.eval();
+                    });
                 });
             }
         },

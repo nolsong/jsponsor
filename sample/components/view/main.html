@@ -13,10 +13,7 @@
             <li>{{text}}<span>{{sub}}</span> {{user.getAge() + 1 + ' years old'}}</li>
         </ul>
         <!-- TODO: add event binding on the dom attribute-->
-        <button>destroy</button>
-        <div id="tab">
-            <my-table></my-table>
-        </div>
+        <button js-click="movePage()">next page</button>
     </div>
 </template>
 
@@ -28,11 +25,6 @@
         pack.view('main-page', {
             document: document.currentScript.ownerDocument,
             ready: function(element) {
-                var button = element.shadowRoot.querySelector('button');
-                button.addEventListener('click', function() {
-                    var tableDiv = element.shadowRoot.querySelector('#tab');
-                    tableDiv.innerHTML = "";
-                });
             }
         });
     })();

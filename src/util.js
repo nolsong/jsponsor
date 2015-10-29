@@ -77,6 +77,18 @@
             }
             return "";
         },
+        searchAttrs: function(attrs, propertyList, cbFind) {
+            if (!attrs || !Array.isArray(propertyList) || !cbFind) { return; }
+
+            for(var i = 0; i < attrs.length; i++) {
+                var attrName = attrs[i].localName;
+                if (propertyList.indexOf(attrName) === -1) {
+                    continue;
+                }
+
+                cbFind(attrName, attrs[i].nodeValue);
+            }
+        },
         isTextNode: function(node) {
             return !!(node && node.nodeName === "#text" && node.nodeType === 3);
         },
