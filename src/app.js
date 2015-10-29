@@ -109,7 +109,13 @@
                 });
             },
             buildView: function(name, param) {
-                registerViewComponent(name, param.document, param.ready, param.controller);
+                registerViewComponent({
+                    viewName: name,
+                    ownerDoc: param.document,
+                    controller: param.controller,
+                    onLoaded: param.ready,
+                    onAttrChanged: param.updatedAttribute
+                });
             },
             buildController: function(name, dependency, constructor) {
                 setController(name, dependency, constructor);

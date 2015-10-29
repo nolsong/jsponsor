@@ -2,7 +2,7 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', 'product'], function(viewModel, srvProduct) {
+    pack.controller('myController', ['$viewModel', '$router', 'product'], function(viewModel, router, srvProduct) {
         console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
         viewModel.user = {
@@ -25,5 +25,13 @@
             //viewModel.onList = false;
             viewModel.user.name = 'nolsong';
         }, 3000);
+
+        setTimeout(function() {
+            router.location('/secondPage');
+        }, 5000);
+    });
+
+    pack.controller('secondCtrl', ['$viewModel'], function(viewModel) {
+        viewModel.title = 'This is second page!';
     });
 })();

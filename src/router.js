@@ -1,39 +1,63 @@
 (function() {
     'use strict';
 
+    /*
+        short cuts
+     */
     var util = jSponsor.util;
-    var routerErr = util.errorFactory('Router');
+    var routeErr = util.errorFactory('Router');
+
+    /*
+        constants
+     */
+    var FLAG_MARK = '#',
+        ROOT_MARK = '/';
+
+    // location.hash is a flag part of url, we will use this to distinguish local page's url
+    var initialUrl = window.location.hash;
+    initialUrl = initialUrl.replace(FLAG_MARK, ROOT_MARK) || ROOT_MARK;
 
     var router = {
-        currentUrl : '/',
+        ROUTE_URL_ATTR: 'url',
+        currentUrl : initialUrl,
         map: {},
         register : function(infoList) {
             var self = this;
 
             if (!infoList || Array.isArray(infoList) === false) {
-                console.log(">> failed to register route map!");
-                return;
+                throw routeErr('invalid param', 'failed to register route map!');
             }
 
-            for(var i = 0; i < infoList.length; i++) {
-                var info = infoList[i];
+            infoList.forEach(function(info) {
                 self.map[info.url] = info;
-            }
+            });
         },
         location: function(url) {
-            console.log('++ location change to : ' + url);
-            if (!this.map[url]) {
-                console.log(">> failed to change location... reason: there is no map info...");
-                return;
+            var self = this;
+
+            if (!self.map[url]) {
+                throw routeErr('invalid param', 'failed to change a location, there is no routing info with this url: {0}', url);
             }
+
+            self.currentUrl = url;
+
+            if (url !== ROOT_MARK) {
+                window.location.hash = url.replace(/^\//g, FLAG_MARK);
+            }
+
+            // changing 'url' attribute on the route-view will trigger for updating it
+            self.element && self.element.setAttribute(self.ROUTE_URL_ATTR, url);
         },
         getRouteInfo: function(url) {
-            url = url || '/';
+            url = url || ROOT_MARK;
 
             return this.map[url];
         },
         getCurrentUrl : function() {
             return this.currentUrl;
+        },
+        setRouteViewElement: function(element) {
+            this.element = element;
         }
     };
 

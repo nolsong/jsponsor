@@ -24,7 +24,13 @@
      *   Each View component has an UI object that will be managed by UI Manager.
      */
     var uiManager = {
-        registerViewComponent : function (name, ownerDoc, ready, controller) {
+        registerViewComponent : function (param) {
+            var name = param.viewName,
+                ownerDoc = param.ownerDoc,
+                controller = param.controller,
+                cbLoaded = param.onLoaded,
+                cbAttrChanged = param.onAttrChanged;
+
             var proto = Object.create(HTMLElement.prototype);
             proto.createdCallback = function() {
                 var t = ownerDoc.querySelector('#' + name);
@@ -47,13 +53,23 @@
                     util.exceptionHandle(e);
                 }
 
-                if (ready) {
-                    ready(this);
+                if (cbLoaded) {
+                    cbLoaded(this);
                 }
             };
             proto.detachedCallback = function() {
                 destroyUIInstance(this.uiInstance);
                 delete this.uiInstance;
+            };
+            proto.attributeChangedCallback = function(attrName, oldVal, newVal) {
+                if (oldVal === newVal) {
+                    // do nothing
+                    return;
+                }
+
+                if (cbAttrChanged) {
+                    cbAttrChanged(this, attrName, newVal);
+                }
             };
 
             if (controller) {
@@ -77,7 +93,7 @@
 
     function destroyUIInstance(uiInstance) {
         // TODO: post UI event after clear up this object
-        //console.log("====== ok, destroy ui instance, name: " + uiInstance.viewName);
+        console.log("====== ok, destroy ui instance, name: " + uiInstance.viewName);
         uiInstance.clean();
         var index = uiInstances.indexOf(uiInstance);
         uiInstances.splice(index, 1);
@@ -217,7 +233,7 @@
                 cond.operator.buildDom(cond.exprStr, self.dom, self.exprInst.eval());
             }
 
-            // root dom¿« child Text Node √≥∏Æ
+            // process text node in the root
             self.findDataBindTextNode(self.dom.childNodes);
 
         },

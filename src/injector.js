@@ -74,6 +74,9 @@
         switch(name) {
             case '$viewModel':
                 return {name: 'viewModel'};
+
+            case '$router':
+                return jSponsor.router;
         }
         // if not, this will be user custom service
         return injector.getService(name);

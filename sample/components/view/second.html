@@ -1,0 +1,26 @@
+<template id="second-page">
+    <style>
+        div {
+            background-color: dodgerblue;
+            width: 720px;
+            height: 480px;
+        }
+    </style>
+    <div>
+        <label>{{title}}</label>
+    </div>
+</template>
+
+<script>
+    (function() {
+        'use strict';
+
+        var pack = jSponsor.package('testPackage');
+        pack.view('second-page', {
+            document: document.currentScript.ownerDocument,
+            ready: function(element) {
+
+            }
+        });
+    })();
+</script>
