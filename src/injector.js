@@ -19,6 +19,15 @@
         };
 
     var injector = jSponsor.injector = {
+        flush: function() {
+            dependencyInfo = {
+                controller: {},
+                service: {}
+            };
+            cache = {
+                service: {}
+            };
+        },
         setController: function(name, dependencyList, constructor) {
             dependencyInfo.controller[name] = {
                 dependency: dependencyList,
