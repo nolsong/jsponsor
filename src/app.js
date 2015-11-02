@@ -41,6 +41,7 @@
             }
             return apps[name] = createAppInstance(name, config);
         },
+        flush: function() { apps = {}; },
         getApplication : function(name) { return apps[name]; }
     };
 

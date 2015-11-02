@@ -27,6 +27,7 @@
 
             return packages[name] = createPackageInstance(name, requirePackages);
         },
+        flush: function() { packages = {}; },
         getPackage: function(name) { return packages[name]; }
     };
 
