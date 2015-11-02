@@ -86,7 +86,7 @@
     };
 
     function createUIInstance(viewName, domObj, controller) {
-        var item = new createActiveUIInstance(viewName, domObj, controller);
+        var item = createActiveUIInstance(viewName, domObj, controller);
         uiInstances.push(item);
         return item;
     }
@@ -273,6 +273,7 @@
                     node: currNode
                 };
 
+                /* jshint -W083 */
                 matched.forEach(function(bindExprStr) {
                     var expression = new Expression(bindExprStr.slice(2, bindExprStr.length - 2), self.viewModel);
                     updateNodeInfo.expressions.push(expression);
@@ -306,6 +307,7 @@
                 var currDom = domStack.pop();
 
                 // first of all, handle conditional Dom signature
+                /* jshint -W083 */
                 var bFind = self.findCDAttributes(currDom.attributes, function(operator, expr) {
                     self.childNodes.push(new CDTNode(currDom, {
                         operatorName: operator,
@@ -449,8 +451,8 @@
             '<': { priority: 3, calc: function(l,r) { return l<r; }},
             '>=': { priority: 3, calc: function(l,r) { return l>=r; }},
             '<=': { priority: 3, calc: function(l,r) { return l<=r; }},
-            '==': { priority: 2, calc: function(l,r) { return l==r; }},
-            '!=': { priority: 2, calc: function(l,r) { return l!=r; }},
+            '==': { priority: 2, calc: function(l,r) { return l===r; }},
+            '!=': { priority: 2, calc: function(l,r) { return l!==r; }},
             '||': { priority: 1, calc: function(l,r) { return l||r; }},
             '&&': { priority: 1, calc: function(l,r) { return l&&r; }}
         },
@@ -560,11 +562,10 @@
                     token = null;
 
                 while (expr.length > i) {
-                    if (self.isOperator(token = expr[i])
-                        || self.isOperator(token = expr.substr(i, 2))) {
+                    if (self.isOperator(token = expr[i]) || self.isOperator(token = expr.substr(i, 2))) {
                         if (operand !== '') {
                             cbHandler(operand.trim(), 'operand');
-                            operand = ''
+                            operand = '';
                         }
                         cbHandler(token, 'operator');
                         i += token.length;
@@ -651,7 +652,7 @@
 
             if (self.model !== model) {
                 var id = self.getNextObjId();
-                model['$id'] = id;
+                model.$id = id;
                 self.pathTable[id] = path;
             }
 
@@ -676,7 +677,7 @@
                 Object.unobserve(model, self.notifyChange);
             }
 
-            delete self.pathTable[model['$id']];
+            delete self.pathTable[model.$id];
             var i = self.watchedObjs.indexOf(model);
             if (i > -1) {
                 self.watchedObjs.splice(i, 1);
@@ -700,7 +701,7 @@
             });
         },
         getPath: function(model) {
-            var id = model ? model['$id'] : -1;
+            var id = model ? model.$id : -1;
             return this.pathTable[id];
         },
         getNextObjId: function() {

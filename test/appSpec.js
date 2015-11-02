@@ -15,9 +15,11 @@ describe("app manager", function() {
     });
 
     it("should not create apps with same name", function() {
+        var firstApp, secondApp;
+
         try {
-            var firstApp = jSponsor.appManager.createApplication('twinsApp');
-            var secondApp = jSponsor.appManager.createApplication('twinsApp');
+            firstApp = jSponsor.appManager.createApplication('twinsApp');
+            secondApp = jSponsor.appManager.createApplication('twinsApp');
         } catch(e) {
             expect(e).toBeDefined();
         }
@@ -51,7 +53,7 @@ describe("app manager", function() {
 
         testPackage.view('my-view', {});
         testPackage.controller('myController', [], function() {});
-        testPackage.service('myService', [], function() { return {} } );
+        testPackage.service('myService', [], function() { return {}; } );
 
         var testApp = jSponsor.appManager.createApplication('testApp', {
             packages: ['testPackage']

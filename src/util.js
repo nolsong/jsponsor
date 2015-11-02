@@ -114,7 +114,7 @@
                 }
                 errText += util.stringFormat.apply(this, errMsgArgs);
                 return new Error(errText);
-            }
+            };
         },
         exceptionHandle: function(exception) {
             //TODO: implement exception handler...

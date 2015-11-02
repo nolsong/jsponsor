@@ -41,6 +41,7 @@
                 dependentArgs.unshift(null);
             }
 
+            /* jshint -W058 */
             var instance = new (Function.prototype.bind.apply(createInfo.constructor, dependentArgs));
             instance.viewModel = viewModel;
             return instance;
