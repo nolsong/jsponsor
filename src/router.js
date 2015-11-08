@@ -21,6 +21,9 @@
         ROUTE_URL_ATTR: 'url',
         currentUrl : initialUrl,
         map: {},
+        flush: function() {
+            this.map = {};
+        },
         register : function(infoList) {
             var self = this;
 
@@ -41,9 +44,7 @@
 
             self.currentUrl = url;
 
-            if (url !== ROOT_MARK) {
-                window.location.hash = url.replace(/^\//g, FLAG_MARK);
-            }
+            window.location.hash = (url === ROOT_MARK) ? '' : url.replace(/^\//g, FLAG_MARK);
 
             // changing 'url' attribute on the route-view will trigger for updating it
             self.element && self.element.setAttribute(self.ROUTE_URL_ATTR, url);
