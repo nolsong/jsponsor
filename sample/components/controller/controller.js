@@ -2,7 +2,7 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', '$router', 'product'], function(viewModel, router, srvProduct) {
+    pack.controller('myController', ['$viewModel', '$router', 'product', '$http'], function(viewModel, router, srvProduct, http) {
         console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
         viewModel.user = {
@@ -29,6 +29,24 @@
         viewModel.movePage = function() {
             router.location('/secondPage');
         };
+
+        // test code for http connection
+        http('GET', 'http://localhost:8080/test/get', {
+            query: {
+                id: 1,
+                name: 'abc',
+                foo: ['first', 'second', 'third'],
+                bar: {
+                    guest: 'you',
+                    config: 'basic'
+                }
+            }
+        })
+        .then(function(res) {
+            console.log(res.data, res.status, res.options);
+        }, function (res) {
+            console.info(res.error, res.status, res.statusText, res.options);
+        });
     });
 
     pack.controller('secondCtrl', ['$viewModel', '$router'], function(viewModel, router) {

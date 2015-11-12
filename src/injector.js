@@ -87,6 +87,9 @@
 
             case '$router':
                 return jSponsor.router;
+
+            case '$http':
+                return jSponsor.connector.http;
         }
         // if not, this will be user custom service
         return injector.getService(name);
