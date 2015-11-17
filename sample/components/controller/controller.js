@@ -2,7 +2,7 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', '$router', 'product', '$http'], function(viewModel, router, srvProduct, http) {
+    pack.controller('myController', ['$viewModel', '$router', 'product', '$http', '$socketFactory'], function(viewModel, router, srvProduct, http, socketFactory) {
         console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
         viewModel.user = {
@@ -31,7 +31,7 @@
         };
 
         // test code for http connection
-        http('GET', 'http://localhost:8080/test/get', {
+        http('GET', 'http://localhost:8080/sample/test/get', {
             query: {
                 id: 1,
                 name: 'abc',
@@ -46,6 +46,23 @@
             console.log(res.data, res.status, res.options);
         }, function (res) {
             console.info(res.error, res.status, res.statusText, res.options);
+        });
+
+
+        var socket = socketFactory.createSocket("localhost", {
+            port: 8080,
+            protocols: "test-event"
+        });
+
+        socket.on('open', function() {
+            socket.send("hi there!");
+            setTimeout(function() {
+                socket.close();
+            }, 2000);
+        });
+
+        socket.on('message', function(msg) {
+            console.log("[Client] data: " + msg);
         });
     });
 

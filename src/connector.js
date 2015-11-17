@@ -1,8 +1,17 @@
 (function() {
     'use strict';
 
+    /*
+        short cut
+     */
+    var util = jSponsor.util;
 
-    var connector = {};
+    var connector = {
+        http: http,
+        socketFactory: createSocketFactory()
+    };
+    var connectorErr = util.errorFactory('Connector');
+
 
     /*
         http constants
@@ -100,7 +109,7 @@
 
         return new Promise(function(resolve, reject) {
             if (!method || !url) {
-                reject(Error('invaild parameter'));
+                reject(Error('invalid parameter'));
                 return;
             }
 
@@ -131,8 +140,6 @@
                 });
         });
     }
-
-    connector.http = http;
 
     function updateContentType(method, header, payload) {
         if (!usePayload(method, payload) || useCustomContentType(header)) {
@@ -204,6 +211,110 @@
         // add another conversion to here
     }
 
+
+    /*
+     Web socket
+     */
+    var MAX_SOCKET_NO_LIMIT = -1;
+    var WEB_SOCKET_PROTOCOL_PREFIX = "ws://",
+        WEB_SOCKET_SECURE_PROTOCOL_PREFIX = "wss://",
+        DEFAULT_WEB_SOCKET_PORT = 80,
+        WS_PROTOCOL_SPLITTER_LAST_INDEX = 3;
+
+    function createSocketFactory() {
+        var sockets = [];
+
+        return {
+            max: MAX_SOCKET_NO_LIMIT,
+            closeAll: function() {
+                sockets.forEach(function(socket) {
+                    socket && socket.close();
+                });
+                sockets = [];
+            },
+            getCount: function() { return sockets.length; },
+            setMaxCount: function(num) {
+                this.max = (num < 0) ? MAX_SOCKET_NO_LIMIT : num;
+            },
+            isFull: function() {
+                return this.max !== MAX_SOCKET_NO_LIMIT && this.max <= this.getCount();
+            },
+            createSocket: function (url, options) {
+                if (!url || this.isFull()) {
+                    throw connectorErr('socket full',
+                        "Can not create a socket due to full size({0}), if you want to increase this size, use a setMaxCount()", this.getCount());
+                }
+
+                options = options || {};
+                url = buildSocketUrl(url, options);
+
+                var ws = new WebSocket(url, options.protocols);
+                if (!ws) {
+                    throw connectorErr('socket error', "Failed to create a WebSocket");
+                }
+
+                var clientCallbacks = {};
+                ws.onopen = function() {
+                    console.log("-------- WebSocket onopen! ---------");
+                    addToSockets(ws);
+                    clientCallbacks.open && clientCallbacks.open();
+                };
+                ws.onclose = function() {
+                    console.log("-------- WebSocket onclose! ---------");
+                    removeFromSockets(ws);
+                    clientCallbacks.close && clientCallbacks.close();
+                };
+                ws.onerror = function(e) {
+                    console.log("-------- WebSocket onerror! ---------");
+                    clientCallbacks.error && clientCallbacks.error(e);
+                };
+                ws.onmessage = function(e) {
+                    console.log("-------- WebSocket onmessage! ---------");
+                    clientCallbacks.message && clientCallbacks.message(e.data);
+                };
+
+                return {
+                    on: function(eventName, fn) {
+                        if (!eventName || !fn) { return; }
+
+                        clientCallbacks[eventName] = fn;
+                    },
+                    send: function(data) {
+                        ws.send(data);
+                    },
+                    close: function() {
+                        ws.close();
+                        removeFromSockets(ws);
+                    }
+                };
+            }
+        };
+
+        function addToSockets(socket) {
+            if (sockets.indexOf(socket) === -1) {
+                sockets.push(socket);
+            }
+        }
+        function removeFromSockets(socket) {
+            var index = sockets.indexOf(socket);
+            if (index === -1) { return; }
+
+            sockets.splice(index, 1);
+        }
+        function buildSocketUrl(url, options) {
+            if (url.indexOf(WEB_SOCKET_PROTOCOL_PREFIX) === -1 && url.indexOf(WEB_SOCKET_SECURE_PROTOCOL_PREFIX) === -1) {
+                var prefix = (options.secure) ? WEB_SOCKET_SECURE_PROTOCOL_PREFIX : WEB_SOCKET_PROTOCOL_PREFIX;
+                url = prefix + url;
+            }
+
+            if (url.lastIndexOf(':') <= WS_PROTOCOL_SPLITTER_LAST_INDEX) {
+                var port = (options.port) ? options.port : DEFAULT_WEB_SOCKET_PORT;
+                url += ':' + port;
+            }
+
+            return url;
+        }
+    }
 
     jSponsor.connector = connector;
 })();

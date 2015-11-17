@@ -90,6 +90,9 @@
 
             case '$http':
                 return jSponsor.connector.http;
+
+            case '$socketFactory':
+                return jSponsor.connector.socketFactory;
         }
         // if not, this will be user custom service
         return injector.getService(name);
