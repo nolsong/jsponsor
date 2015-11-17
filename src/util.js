@@ -41,6 +41,15 @@
         isFunction: function(fn) {
             return !!(fn && typeof fn === 'function');
         },
+        isString: function(str) {
+            return !!(str && typeof str === 'string');
+        },
+        isNumber: function(num) {
+            return !!(num && typeof num === 'number');
+        },
+        isStrictObject: function(obj) {
+            return !!(obj && typeof obj === 'object' &&  obj.toString() === '[object Object]');
+        },
         isQuotationString: function(str) {
             if (!str || typeof str !== "string" || str.length < 2) {
                 return false;

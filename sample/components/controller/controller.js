@@ -57,6 +57,11 @@
         var echoInterval;
         socket.on('open', function() {
             echoInterval = setInterval(function() {
+                if (viewModel.count >= 10) {
+                    clearInterval(echoInterval);
+                    socket.close();
+                    return;
+                }
                 socket.send(viewModel.count + 1);
             }, 1000);
         });

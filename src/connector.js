@@ -60,7 +60,7 @@
             }
             function getHeaderObj(headerStr) {
                 var headerObj = {};
-                if (!headerStr || typeof headerStr !== "string") {
+                if (!util.isString(headerStr)) {
                     return headerObj;
                 }
 
@@ -98,7 +98,7 @@
 
             req.responseType = responseType ? responseType : DEFAULT_RESPONSE_TYPE;
             req.withCredentials = withCredentials ? true : false;
-            req.timeout = (typeof timeout === "number") ? timeout : DEFAULT_TIMEOUT;
+            req.timeout = util.isNumber(timeout) ? timeout : DEFAULT_TIMEOUT;
             req.send(payload);
         });
     }
@@ -146,7 +146,7 @@
             return;
         }
 
-        if (typeof payload === "object" && payload.toString() === "[object Object]") {
+        if (util.isStrictObject(payload)) {
             return CONTENT_TYPE_JSON_UTF8;
         }
     }
@@ -195,7 +195,7 @@
             return;
         }
 
-        if (contentType.indexOf(CONTENT_TYPE_JSON) === 0 && typeof data === "object") {
+        if (contentType.indexOf(CONTENT_TYPE_JSON) === 0 && util.isStrictObject(data)) {
             return JSON.stringify(data);
         }
         // add another conversion to here
@@ -205,7 +205,7 @@
             return;
         }
 
-        if (contentType.indexOf(CONTENT_TYPE_JSON) === 0 && typeof data === "string") {
+        if (contentType.indexOf(CONTENT_TYPE_JSON) === 0 && util.isString(data)) {
             return JSON.parse(data);
         }
         // add another conversion to here
