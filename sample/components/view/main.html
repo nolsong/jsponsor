@@ -12,6 +12,7 @@
         <ul js-loop="text in order.list">
             <li>{{text}}<span>{{sub}}</span> {{user.getAge() + 1 + ' years old'}}</li>
         </ul>
+        <label>socket message counting : {{count}}</label>
         <!-- TODO: add event binding on the dom attribute-->
         <button js-click="movePage()">next page</button>
     </div>
