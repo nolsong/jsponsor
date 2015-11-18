@@ -13,6 +13,18 @@
             <li>{{text}}<span>{{sub}}</span> {{user.getAge() + 1 + ' years old'}}</li>
         </ul>
         <label>socket message counting : {{count}}</label>
+
+        <div>
+            remote Book's title: <input type="text" model="bookTitle">
+            author: <input type="text" model="bookAuthor">
+            <button js-click="saveBook()">Save</button>
+            <button js-click="getBook()">Get</button>
+            <p js-if="book">
+                Book title: <b>{{book.title}}</b>
+                author: <b>{{book.author}}</b>
+            </p>
+        </div>
+
         <!-- TODO: add event binding on the dom attribute-->
         <button js-click="movePage()">next page</button>
     </div>

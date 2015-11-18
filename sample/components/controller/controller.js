@@ -2,7 +2,7 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', 'product'], function(viewModel, router, http, socketFactory, srvProduct) {
+    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct) {
         console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
         viewModel.count = 0;
@@ -55,6 +55,7 @@
         });
 
         var echoInterval;
+        // TODO: need to receive a destroy message so that we can stop 'echo interval' and close the socket when out of this page
         socket.on('open', function() {
             echoInterval = setInterval(function() {
                 if (viewModel.count >= 10) {
@@ -70,7 +71,30 @@
             viewModel.count = parseInt(msg, 10);
         });
 
-        // TODO: need to receive a destroy message so that we can stop 'echo interval' and close the socket when out of this page
+
+        viewModel.bookTitle = "";
+        viewModel.bookAuthor = "";
+
+        var remoteBook = remoteModel('http://localhost:8080/sample/book');
+        viewModel.saveBook = function() {
+            remoteBook.create({
+                id: 1,
+                title: viewModel.bookTitle,
+                author: viewModel.bookAuthor
+            });
+        };
+
+        viewModel.getBook = function() {
+            remoteBook.read().then(function(res) {
+                console.log('[remoteBook:read]' + res.data.title);
+                viewModel.book = {
+                    title: res.data.title,
+                    author: res.data.author
+                };
+            }, function(res) {
+                console.log('[remoteBook:read] error: '+ res.error);
+            });
+        };
     });
 
     pack.controller('secondCtrl', ['$viewModel', '$router'], function(viewModel, router) {

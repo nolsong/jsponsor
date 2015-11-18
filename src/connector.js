@@ -8,7 +8,8 @@
 
     var connector = {
         http: http,
-        socketFactory: createSocketFactory()
+        socketFactory: createSocketFactory(),
+        remoteModel: createRESTFactory()
     };
     var connectorErr = util.errorFactory('Connector');
 
@@ -314,6 +315,31 @@
 
             return url;
         }
+    }
+
+
+    /*
+        REST(Representational State Transfer) service
+     */
+    function createRESTFactory() {
+        return function(url) {
+            return {
+                create: function(data) {
+                    return connector.http('POST', url, {
+                        payload: data
+                    });
+                },
+                read: function() {
+                    return connector.http('GET', url);
+                },
+                update: function() {
+                    return connector.http('PUT', url);
+                },
+                delete: function() {
+                    return connector.http('DELETE', url);
+                }
+            };
+        };
     }
 
     jSponsor.connector = connector;

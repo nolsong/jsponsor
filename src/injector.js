@@ -93,6 +93,9 @@
 
             case '$socketFactory':
                 return jSponsor.connector.socketFactory;
+
+            case '$remoteModel':
+                return jSponsor.connector.remoteModel;
         }
         // if not, this will be user custom service
         return injector.getService(name);
