@@ -40,12 +40,12 @@
                 try {
                     // if there is a controller when call this function, this comes from definition of view component.
                     if (controller) {
-                        this.uiInstance = createUIInstance(name, this, injector.getController(name));
+                        this.uiInstance = createUIInstance(name, this, getController(name));
                     } else {
                         // check if this comes from router
                         var routeInfo = router.getRouteInfo(router.getCurrentUrl());
                         if (routeInfo.view === name) {
-                            this.uiInstance = createUIInstance(name, this, injector.getController(routeInfo.controller));
+                            this.uiInstance = createUIInstance(name, this, getController(routeInfo.controller));
                         }
                         // if not any case, this view has no controller
                     }
@@ -55,6 +55,12 @@
 
                 if (cbLoaded) {
                     cbLoaded(this);
+                }
+
+                function getController(findName) {
+                    return function(viewModel) {
+                        injector.getController(findName, viewModel);
+                    };
                 }
             };
             proto.detachedCallback = function() {
@@ -85,23 +91,55 @@
         }
     };
 
-    function createUIInstance(viewName, domObj, controller) {
-        var item = createActiveUIInstance(viewName, domObj, controller);
+    function createUIInstance(viewName, domObj, controllerBuilder) {
+        var item = createActiveUIInstance(viewName, domObj, controllerBuilder);
         uiInstances.push(item);
         return item;
     }
 
     function destroyUIInstance(uiInstance) {
-        // TODO: post UI event after clear up this object
         console.log("[UI Manager] destroy ui instance, name: " + uiInstance.viewName);
+        uiInstance.takeEvent('destroy');
         uiInstance.clean();
         var index = uiInstances.indexOf(uiInstance);
         uiInstances.splice(index, 1);
     }
 
 
-    function createActiveUIInstance(viewName, domObj, controller) {
-        var viewModel = controller.viewModel;
+    function createActiveUIInstance(viewName, domObj, controllerBuilder) {
+        var eventMap = {},
+            viewModel = {
+                $broadcast: function(event, data) {
+                    if (!util.isString(event)) {
+                        return;
+                    }
+
+                    uiInstances.forEach(function(inst) {
+                        inst.takeEvent(event, data);
+                    });
+                },
+                $post: function(event, data, targets) {
+                    if (!util.isString(event) || !Array.isArray(targets)) {
+                        return;
+                    }
+
+                    var targetInstances = uiInstances.filter(function(inst) {
+                        return targets.indexOf(inst.viewName) > -1;
+                    });
+
+                    targetInstances.forEach(function(inst) {
+                        inst.takeEvent(event, data);
+                    });
+                },
+                $on: function(event, cbFn) {
+                    if (!util.isString(event) || !util.isFunction(cbFn)) {
+                        return;
+                    }
+                    eventMap[event] = cbFn;
+                }
+            };
+
+        var controller = controllerBuilder(viewModel);
 
         try {
             var cRootNode = new CDTNode(domObj.shadowRoot, null, viewModel);
@@ -126,6 +164,10 @@
             dom: domObj,
             controller: controller,
             viewModel: viewModel,
+            takeEvent: function(event, data) {
+                var fn = eventMap[event];
+                fn && fn(data);
+            },
             clean: function() {
                 deepObserver.close();
                 cRootNode.clear();

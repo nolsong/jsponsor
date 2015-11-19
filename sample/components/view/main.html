@@ -1,12 +1,12 @@
 <template id="main-page">
     <style>
-        div {
+        #wapper {
             background-color: yellowgreen;
             width: 720px;
             height: 680px;
         }
     </style>
-    <div js-if="onList">{{title}} user name: {{user.name}}, user age: {{user.getAge() + 1}}
+    <div id="wapper" js-if="onList">{{title}} user name: {{user.name}}, user age: {{user.getAge() + 1}}
         <input type="text" model="title">
         <label>{{title}}</label>
         <ul js-loop="text in order.list">
@@ -14,7 +14,7 @@
         </ul>
         <label>socket message counting : {{count}}</label>
 
-        <div>
+        <div style="height: 100px;outline-style:dotted">
             remote Book's title: <input type="text" model="bookTitle">
             author: <input type="text" model="bookAuthor">
             <button js-click="saveBook()">Save</button>
@@ -23,6 +23,11 @@
                 Book title: <b>{{book.title}}</b>
                 author: <b>{{book.author}}</b>
             </p>
+        </div>
+
+        <div>
+            set table title: <input type="text" model="tableTitle">
+            <button js-click="changeTableTitle()">change</button>
         </div>
 
         <!-- TODO: add event binding on the dom attribute-->

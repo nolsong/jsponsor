@@ -34,26 +34,27 @@
                 constructor: constructor
             };
         },
-        getController: function(name) {
+        getController: function(name, givenViewModel) {
             var createInfo = dependencyInfo.controller[name];
             if (!createInfo) {
                 throw injectorErr('not found', 'can not found {0} controller', name);
             }
 
             // check their dependent services
-            var viewModel = null;
             var dependentArgs = resolveDependency(createInfo.dependency);
             if (dependentArgs && Array.isArray(dependentArgs) === true) {
                 var vmIndex = createInfo.dependency.indexOf('$viewModel');
-                viewModel = dependentArgs[vmIndex];
+
+                // upgrade a default viewModel
+                if (givenViewModel) {
+                    dependentArgs[vmIndex] = givenViewModel;
+                }
                 // put 'null' into the dependentArgs for bind method's first param.
                 dependentArgs.unshift(null);
             }
 
             /* jshint -W058 */
-            var instance = new (Function.prototype.bind.apply(createInfo.constructor, dependentArgs));
-            instance.viewModel = viewModel;
-            return instance;
+            return new (Function.prototype.bind.apply(createInfo.constructor, dependentArgs));
         },
         setService: function(name, dependencyList, constructor) {
             dependencyInfo.service[name] = {
@@ -83,6 +84,7 @@
         // check if this is private object
         switch(name) {
             case '$viewModel':
+                // default viewModel
                 return {name: 'viewModel'};
 
             case '$router':

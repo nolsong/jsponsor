@@ -5,6 +5,7 @@
     pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct) {
         console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
+        viewModel.tableTitle = "";
         viewModel.count = 0;
         viewModel.user = {
             name: "tsjung",
@@ -55,14 +56,8 @@
         });
 
         var echoInterval;
-        // TODO: need to receive a destroy message so that we can stop 'echo interval' and close the socket when out of this page
         socket.on('open', function() {
             echoInterval = setInterval(function() {
-                if (viewModel.count >= 10) {
-                    clearInterval(echoInterval);
-                    socket.close();
-                    return;
-                }
                 socket.send(viewModel.count + 1);
             }, 1000);
         });
@@ -95,6 +90,18 @@
                 console.log('[remoteBook:read] error: '+ res.error);
             });
         };
+
+        viewModel.changeTableTitle = function() {
+            viewModel.$post('changeTitle', viewModel.tableTitle, ['my-table']);
+        };
+
+        /*
+            UI event listeners
+         */
+        viewModel.$on('destroy', function() {
+            clearInterval(echoInterval);
+            socket.close();
+        });
     });
 
     pack.controller('secondCtrl', ['$viewModel', '$router'], function(viewModel, router) {

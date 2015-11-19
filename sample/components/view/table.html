@@ -24,6 +24,10 @@
                 constructor: function(viewModel) {
                     viewModel.content = "Hellow my table!";
                     console.log("***** create my table controller! *****");
+
+                    viewModel.$on('changeTitle', function(text) {
+                        viewModel.content = text;
+                    });
                 }
             }
         });
