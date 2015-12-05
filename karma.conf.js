@@ -23,6 +23,7 @@ module.exports = function(config) {
             'src/ui.js',
             'src/package.js',
             'src/app.js',
+            'src/fileSystem.js',
             'test/*Spec.js'
         ],
 

@@ -374,47 +374,5 @@
         }
     }
 
-
-    //fileSystem.$persistentFileSystem().then(function(tfs) {
-    //    tfs.createFile('/first/second/test.txt', {subDirectories: true})
-    //        .then(function(info) {
-    //            console.log("[create] : " + getInfoStr(info));
-    //            return tfs.writeFile('check/foo/bar/ok.txt', "fighting!", {subDirectories: true});
-    //        })
-    //        .then(function(info) {
-    //            console.log("[write] : " + getInfoStr(info));
-    //            return tfs.appendFile('check/foo/bar/ok.txt', ", You are perfect!");
-    //        })
-    //        .then(function() {
-    //            return tfs.readFile('check/foo/bar/ok.txt', {readFormat: fileSystem.READ_FORMAT.PLAIN_TEXT});
-    //        })
-    //        .then(function(data) {
-    //            console.log("[read] data: " + data);
-    //            return tfs.copyFile('check/foo/bar/ok.txt', 'first');
-    //        })
-    //        .then(function() {
-    //            console.log("[copy] ok");
-    //            return tfs.removeFile('check/foo/bar/ok.txt');
-    //        })
-    //        .then(function(name) {
-    //            console.log("[removed] fileName: " + name);
-    //            return tfs.readFile('first/ok.txt');
-    //        })
-    //        .then(function(data) {
-    //            console.log("[read] first/ok.txt: " + data);
-    //            return tfs.removeDirectory('first', {recursive: true});
-    //        })
-    //        .then(function() {
-    //            console.log("[removeDir] ok");
-    //        })
-    //        .catch(function(msg) {
-    //            console.error("[TFS] error: " + msg);
-    //        });
-    //});
-    //
-    //function getInfoStr(info) {
-    //    return JSON.stringify(info);
-    //}
-
     jSponsor.fileSystem = fileSystem;
 })();
