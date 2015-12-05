@@ -11,12 +11,21 @@
      */
     var requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
 
-    var DEFAULT_TEMP_FS_BYTES = 5 * 1024 * 1024;    // 5 MB
+    // default size for requested file system is 5MB
+    var DEFAULT_TEMP_FS_BYTES = 5 * 1024 * 1024,
+        DEFAULT_PERS_FS_BYTES = 5 * 1024 * 1024,
+        DEFAULT_MIME_TYPE = "text/plain";
 
     var fileSystem = {
         FILE_TYPE: {
             FILE: 1,
             DIRECTORY: 2
+        },
+        READ_FORMAT: {
+            PLAIN_TEXT: 0,
+            BINARY_STRING: 1,
+            ARRAY_BUFFER: 2,
+            DATA_URL: 3
         },
         $temporaryFileSystem: function(requestBytes) {
             return new Promise(function(resolve, reject) {
@@ -28,6 +37,30 @@
 
                     console.log("[$temporaryFileSystem] get filesystem: " + rawFileSystem.name);
                     resolve(getAbstractFileSystem(rawFileSystem));
+                }, function(e) {
+                    reject(e.name);
+                });
+            });
+        },
+        $persistentFileSystem: function(requestBytes) {
+            return new Promise(function(resolve, reject) {
+                navigator.webkitPersistentStorage.requestQuota(requestBytes || DEFAULT_PERS_FS_BYTES, function(grantedBytes) {
+                    if (grantedBytes <= 0) {
+                        reject('no space');
+                        return;
+                    }
+
+                    requestFileSystem(window.PERSISTENT, grantedBytes, function(rawFileSystem) {
+                        if (!rawFileSystem) {
+                            reject('failed to get filesystem');
+                            return;
+                        }
+
+                        console.log("[$persistentFileSystem] get filesystem: " + rawFileSystem.name + ", grunted size: " + grantedBytes + " bytes");
+                        resolve(getAbstractFileSystem(rawFileSystem));
+                    }, function(e) {
+                        reject(e.name);
+                    });
                 }, function(e) {
                     reject(e.name);
                 });
@@ -44,7 +77,7 @@
                 option = option || {};
 
                 return new Promise(function(resolve, reject) {
-                    if (option.subDirectories === true) {
+                    if (option.subDirectories) {
                         var parentTokens = getParentDirTokens(path);
                         if (parentTokens) {
                             var parentPath = parentTokens.join('/');
@@ -76,47 +109,92 @@
                 });
             },
             writeFile: function(path, data, option) {
+                var self = this;
+
                 option = option || {};
                 return new Promise(function(resolve, reject) {
-                    rootDirEntry.getFile(path, {create: true}, function(fileEntry) {
-                        fileEntry.createWriter(function(fileWriter) {
-                            fileWriter.onwriteend = function() {
-                                createMetaInfo(fileEntry, function(info) {
-                                    resolve(info);
-                                });
-                            };
-                            fileWriter.onerror = function(e) {
-                                reject(e.toString());
-                            };
+                    if (option.subDirectories) {
+                        self.exists(path).then(executeWrite, function() {
+                            // if parent path does not exist
+                            return self.createFile(path, {subDirectories: true});
+                        }).then(executeWrite, executeWrite);
+                    } else {
+                        executeWrite();
+                    }
 
-                            if (option.append === true) {
-                                fileWriter.seek(fileWriter.length);
-                            }
+                    function executeWrite() {
+                        writeDataToFile(path);
+                    }
+                    function writeDataToFile(filePath) {
+                        rootDirEntry.getFile(filePath, {create: true}, function(fileEntry) {
+                            fileEntry.createWriter(function(fileWriter) {
+                                fileWriter.onwriteend = function() {
+                                    createMetaInfo(fileEntry, function(info) {
+                                        resolve(info);
+                                    });
+                                };
+                                fileWriter.onerror = function(e) {
+                                    reject(e.toString());
+                                };
 
-                            var blob = new Blob([data], {type: 'text/plain'});
-                            fileWriter.write(blob);
-                        }, function (e) {
+                                if (option.append === true) {
+                                    fileWriter.seek(fileWriter.length);
+                                }
+
+                                var blob = new Blob(Array.isArray(data) ? data : [data], {type: option.mimeType || DEFAULT_MIME_TYPE});
+                                fileWriter.write(blob);
+                            }, function (e) {
+                                reject(e.name);
+                            });
+                        }, function(e) {
+                            reject(e.name);
+                        });
+                    }
+                });
+            },
+            appendFile: function(path, data, option) {
+                option = option || {};
+                option.append = true;
+                return this.writeFile(path, data, option);
+            },
+            readFile: function(path, option) {
+                option = option || {};
+
+                return new Promise(function(resolve, reject) {
+                    rootDirEntry.getFile(path, {}, function(fileEntry) {
+                        fileEntry.file(function(file) {
+                            var reader = new FileReader();
+                            reader.onload = function() {
+                                resolve(this.result);
+                            };
+                            reader.onerror = function(e) {
+                                reject(e.name);
+                            };
+                            readDataFile(reader, option.readFormat, file);
+                        }, function(e) {
                             reject(e.name);
                         });
                     }, function(e) {
                         reject(e.name);
                     });
                 });
+
+                function readDataFile(rd, format, fileObj) {
+                    var READ_FORMAT = fileSystem.READ_FORMAT;
+                    switch(format) {
+                        case READ_FORMAT.ARRAY_BUFFER: return rd.readAsArrayBuffer(fileObj);
+                        case READ_FORMAT.BINARY_STRING: return rd.readAsBinaryString(fileObj);
+                        case READ_FORMAT.DATA_URL: return rd.readAsDataURL(fileObj);
+                        default:
+                            return rd.readAsText(fileObj);
+                    }
+                }
             },
-            appendFile: function(path, data) {
-                return this.writeFile(path, data, {
-                    append: true
-                });
-            },
-            readFile: function(path) {
+            removeFile: function(path) {
                 return new Promise(function(resolve, reject) {
-                    rootDirEntry.getFile(path, {}, function(fileEntry) {
-                        fileEntry.file(function(file) {
-                            var reader = new FileReader();
-                            reader.onloadend = function() {
-                                resolve(this.result);
-                            };
-                            reader.readAsText(file);
+                    rootDirEntry.getFile(path, {create: false}, function(fileEntry) {
+                        fileEntry.remove(function() {
+                            resolve(path);
                         }, function(e) {
                             reject(e.name);
                         });
@@ -125,11 +203,44 @@
                     });
                 });
             },
-            removeFile: function(path) {
+            copyFile: function(src, dest, option) {
+                option = option || {};
                 return new Promise(function(resolve, reject) {
-                    rootDirEntry.getFile(path, {create: false}, function(fileEntry) {
-                        fileEntry.remove(function() {
-                            resolve(path);
+                    if (!src || !dest) {
+                        reject('invalid param');
+                        return;
+                    }
+
+                    rootDirEntry.getFile(src, {}, function(fileEntry) {
+                        rootDirEntry.getDirectory(dest, {create: true}, function(dirEntry) {
+                            fileEntry.copyTo(dirEntry, option.newName, function() {
+                                resolve(dest);
+                            }, function(e) {
+                                reject(e.name);
+                            });
+                        }, function(e) {
+                            reject(e.name);
+                        });
+                    }, function(e) {
+                        reject(e.name);
+                    });
+                });
+            },
+            moveFile: function(src, dest, option) {
+                option = option || {};
+                return new Promise(function(resolve, reject) {
+                    if (!src || !dest) {
+                        reject('invalid param');
+                        return;
+                    }
+
+                    rootDirEntry.getFile(src, {}, function(fileEntry) {
+                        rootDirEntry.getDirectory(dest, {create: true}, function(dirEntry) {
+                            fileEntry.moveTo(dirEntry, option.newName, function() {
+                                resolve(dest);
+                            }, function(e) {
+                                reject(e.name);
+                            });
                         }, function(e) {
                             reject(e.name);
                         });
@@ -166,6 +277,33 @@
                             reject(e.name);
                         });
                     }
+                });
+            },
+            removeDirectory: function(path, option) {
+                option = option || {};
+                return new Promise(function(resolve, reject) {
+                    if (!path) {
+                        reject('invalid path');
+                        return;
+                    }
+
+                    rootDirEntry.getDirectory(path, {}, function(dirEntry) {
+                        if (option.recursive) {
+                            dirEntry.removeRecursively(function() {
+                                resolve();
+                            }, function(e) {
+                                reject(e.name);
+                            });
+                        } else {
+                            dirEntry.remove(function() {
+                                resolve();
+                            }, function(e) {
+                                reject(e.name);
+                            });
+                        }
+                    }, function(e) {
+                        reject(e.name);
+                    });
                 });
             },
             exists: function(path) {
@@ -237,25 +375,37 @@
     }
 
 
-    //fileSystem.$temporaryFileSystem().then(function(tfs) {
+    //fileSystem.$persistentFileSystem().then(function(tfs) {
     //    tfs.createFile('/first/second/test.txt', {subDirectories: true})
     //        .then(function(info) {
     //            console.log("[create] : " + getInfoStr(info));
-    //            return tfs.writeFile('/ok.txt', "fighting!");
+    //            return tfs.writeFile('check/foo/bar/ok.txt', "fighting!", {subDirectories: true});
     //        })
     //        .then(function(info) {
     //            console.log("[write] : " + getInfoStr(info));
-    //            return tfs.appendFile('ok.txt', ", You are perfect!");
+    //            return tfs.appendFile('check/foo/bar/ok.txt', ", You are perfect!");
     //        })
     //        .then(function() {
-    //            return tfs.readFile('ok.txt');
+    //            return tfs.readFile('check/foo/bar/ok.txt', {readFormat: fileSystem.READ_FORMAT.PLAIN_TEXT});
     //        })
     //        .then(function(data) {
     //            console.log("[read] data: " + data);
-    //            return tfs.removeFile('ok.txt');
+    //            return tfs.copyFile('check/foo/bar/ok.txt', 'first');
+    //        })
+    //        .then(function() {
+    //            console.log("[copy] ok");
+    //            return tfs.removeFile('check/foo/bar/ok.txt');
     //        })
     //        .then(function(name) {
     //            console.log("[removed] fileName: " + name);
+    //            return tfs.readFile('first/ok.txt');
+    //        })
+    //        .then(function(data) {
+    //            console.log("[read] first/ok.txt: " + data);
+    //            return tfs.removeDirectory('first', {recursive: true});
+    //        })
+    //        .then(function() {
+    //            console.log("[removeDir] ok");
     //        })
     //        .catch(function(msg) {
     //            console.error("[TFS] error: " + msg);
@@ -265,7 +415,6 @@
     //function getInfoStr(info) {
     //    return JSON.stringify(info);
     //}
-
 
     jSponsor.fileSystem = fileSystem;
 })();
