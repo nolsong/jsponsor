@@ -98,6 +98,9 @@
 
             case '$remoteModel':
                 return jSponsor.connector.remoteModel;
+
+            case '$log':
+                return jSponsor.logService;
         }
         // if not, this will be user custom service
         return injector.getService(name);
