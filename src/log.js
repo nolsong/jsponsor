@@ -19,7 +19,7 @@
             OFF: 7
         },
         DEFAULT_GLOBAL_LEVEL = LEVEL.ALL,
-        DEFAULT_LEVEL = LEVEL.WARN;
+        DEFAULT_LEVEL = LEVEL.ALL;
 
     /*
         private caches

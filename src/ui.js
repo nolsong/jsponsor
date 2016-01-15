@@ -6,7 +6,8 @@
      */
     var router = jSponsor.router,
         injector = jSponsor.injector,
-        util = jSponsor.util;
+        util = jSponsor.util,
+        logger = jSponsor.logService.getLogger();
 
     var uiInstances = [],
         uiErr = util.errorFactory('UI Manager');
@@ -98,7 +99,7 @@
     }
 
     function destroyUIInstance(uiInstance) {
-        console.log("[UI Manager] destroy ui instance, name: " + uiInstance.viewName);
+        logger.info("[UI Manager] destroy ui instance, name: " + uiInstance.viewName);
         uiInstance.takeEvent('destroy');
         uiInstance.clean();
         var index = uiInstances.indexOf(uiInstance);
@@ -415,7 +416,7 @@
                     continue;
                 }
                 this.updateNodes(propertyName);
-                //console.log("------- found data bind text: " + propertyName + " -------");
+                //logger.info("------- found data bind text: " + propertyName + " -------");
             }
         },
         updateNodes: function (chagedPath) {
@@ -738,7 +739,7 @@
                     self.removeObserve(changedVal);
                 }
 
-                console.log("[OBSERVE] type: " + change.type + ", name: " + change.name + ", new value: " + change.object[change.name] + ", oldValue: " + change.oldValue + ", path: " + path);
+                logger.info("[OBSERVE] type: " + change.type + ", name: " + change.name + ", new value: " + change.object[change.name] + ", oldValue: " + change.oldValue + ", path: " + path);
                 self.cbClient(change.name, changedVal, path);
             });
         },

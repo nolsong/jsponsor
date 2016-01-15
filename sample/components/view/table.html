@@ -20,10 +20,12 @@
         pack.view('my-table', {
             document: document.currentScript.ownerDocument,
             controller: {
-                dependency: ['$viewModel'],
-                constructor: function(viewModel) {
+                dependency: ['$viewModel', '$log'],
+                constructor: function(viewModel, $log) {
+                    var logger = $log.getLogger('myTable');
+
                     viewModel.content = "Hellow my table!";
-                    console.log("***** create my table controller! *****");
+                    logger.info("***** create my table controller! *****");
 
                     viewModel.$on('changeTitle', function(text) {
                         viewModel.content = text;

@@ -2,8 +2,10 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct) {
-        console.log(">> testPackage:myController is created!, product name: " + srvProduct.getName());
+    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product', '$log'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct, $log) {
+        var logger = $log.getLogger('myController');
+
+        logger.info(">> testPackage:myController is created!, product name: " + srvProduct.getName());
         viewModel.title = "main";
         viewModel.tableTitle = "";
         viewModel.count = 0;
@@ -39,14 +41,14 @@
             }
         })
         .then(function(res) {
-            console.log(res.data, res.status, res.options);
+            logger.info(res.data, res.status, res.options);
             var data = res.data;
 
             // update UI
             viewModel.user.name = data.name;
             viewModel.title = data.title;
         }, function (res) {
-            console.error(res.error, res.status, res.statusText, res.options);
+            logger.error(res.error, res.status, res.statusText, res.options);
         });
 
         // test for socket connection
@@ -81,13 +83,13 @@
 
         viewModel.getBook = function() {
             remoteBook.read().then(function(res) {
-                console.log('[remoteBook:read]' + res.data.title);
+                logger.info('[remoteBook:read]' + res.data.title);
                 viewModel.book = {
                     title: res.data.title,
                     author: res.data.author
                 };
             }, function(res) {
-                console.log('[remoteBook:read] error: '+ res.error);
+                logger.error('[remoteBook:read] error: '+ res.error);
             });
         };
 

@@ -4,7 +4,8 @@
     /*
         short cut
      */
-    //var util = jSponsor.util;
+    var util = jSponsor.util,
+        logger = jSponsor.logService.getLogger();
 
     /*
         These file system APIs are dependent on browser, below implementation will be available on the chrome only
@@ -35,7 +36,7 @@
                         return;
                     }
 
-                    console.log("[$temporaryFileSystem] get filesystem: " + rawFileSystem.name);
+                    logger.info("[$temporaryFileSystem] get filesystem: " + rawFileSystem.name);
                     resolve(getAbstractFileSystem(rawFileSystem));
                 }, function(e) {
                     reject(e.name);
@@ -56,7 +57,7 @@
                             return;
                         }
 
-                        console.log("[$persistentFileSystem] get filesystem: " + rawFileSystem.name + ", grunted size: " + grantedBytes + " bytes");
+                        logger.info("[$persistentFileSystem] get filesystem: " + rawFileSystem.name + ", grunted size: " + grantedBytes + " bytes");
                         resolve(getAbstractFileSystem(rawFileSystem));
                     }, function(e) {
                         reject(e.name);

@@ -11,7 +11,8 @@
     /*
         shortcuts
      */
-    var util = jSponsor.util;
+    var util = jSponsor.util,
+        logger = jSponsor.logService.getLogger();
 
     var packErr = util.errorFactory('Package');
 
@@ -93,7 +94,7 @@
             for(var i = 0; i < requires.length; i++) {
                 var req = requires[i];
                 if (packages[req] === undefined) {
-                    console.log('failed to get package[' + name + '], reason: can not load this package: ' + packages[req]);
+                    logger.warn('failed to get package[' + name + '], reason: can not load this package: ' + packages[req]);
                     return false;
                 }
             }

@@ -4,7 +4,8 @@
     /*
         short cut
      */
-    var util = jSponsor.util;
+    var util = jSponsor.util,
+        logger = jSponsor.logService.getLogger();
 
     var connector = {
         http: http,
@@ -51,7 +52,7 @@
             }
             function fail(customReason) {
                 var errorText = customReason || req.statusText;
-                console.log("HTTP error: " + errorText + " occurred");
+                logger.error("HTTP error: " + errorText + " occurred");
                 reject({
                     error: Error(errorText),
                     status: req.status,
@@ -256,21 +257,21 @@
 
                 var clientCallbacks = {};
                 ws.onopen = function() {
-                    console.log("-------- WebSocket onopen! ---------");
+                    logger.info("-------- WebSocket onopen! ---------");
                     addToSockets(ws);
                     clientCallbacks.open && clientCallbacks.open();
                 };
                 ws.onclose = function() {
-                    console.log("-------- WebSocket onclose! ---------");
+                    logger.info("-------- WebSocket onclose! ---------");
                     removeFromSockets(ws);
                     clientCallbacks.close && clientCallbacks.close();
                 };
                 ws.onerror = function(e) {
-                    console.log("-------- WebSocket onerror! ---------");
+                    logger.info("-------- WebSocket onerror! ---------");
                     clientCallbacks.error && clientCallbacks.error(e);
                 };
                 ws.onmessage = function(e) {
-                    console.log("-------- WebSocket onmessage! ---------");
+                    logger.info("-------- WebSocket onmessage! ---------");
                     clientCallbacks.message && clientCallbacks.message(e.data);
                 };
 

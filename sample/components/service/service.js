@@ -2,7 +2,8 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.service('product', [], function() {
+    pack.service('product', ['$log'], function($log) {
+        var logger = $log.getLogger('product');
         var srv = {
             name: 'beer'
         };
@@ -11,7 +12,7 @@
             return this.name;
         };
 
-        console.log('-----[service] product is created!');
+        logger.info('-----[service] product is created!');
         return srv;
     });
 })();

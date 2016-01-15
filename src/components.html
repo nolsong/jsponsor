@@ -19,14 +19,15 @@
         var util = jSponsor.util,
             ui = jSponsor.ui,
             router = jSponsor.router,
-            ownerDocument = document.currentScript.ownerDocument;
+            ownerDocument = document.currentScript.ownerDocument,
+            logger = jSponsor.logService.getLogger();
 
         ui.registerViewComponent({
             viewName: 'jsponsor-app',
             ownerDoc: ownerDocument,
             onLoaded: function(element) {
                 var appName = util.getAttrValue(element.attributes, 'app');
-                console.log("------- " + appName + " is started! -------");
+                logger.info("------- " + appName + " is started! -------");
             }
         });
 
@@ -59,8 +60,7 @@
 
                 var inputDom = element.shadowRoot.querySelector('input');
                 inputDom.addEventListener('input', function() {
-                    console.log("js-input changed!!! value: " + inputDom.value);
-
+                    logger.info("js-input changed!!! value: " + inputDom.value);
                 });
             }
         });
