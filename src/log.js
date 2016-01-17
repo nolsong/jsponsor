@@ -193,15 +193,6 @@
         },
         check: function(level) {
             return this.enabled && this.level <= level && filter.getGlobalLevel() <= level;
-        },
-        write: function(msg, levelText) {
-            var logText = this.formatter.build({
-                category: this.category,
-                level: levelText,
-                message: msg
-            });
-
-            this.logDriver.log(levelText, logText);
         }
     };
 
@@ -210,9 +201,40 @@
         each formatter has own style to show specific text and it should be able to return string as a result.
      */
     function createPlainFormatter() {
+        var ERROR_OBJ_MSG_PREFIX = "@Error: ",
+            ERROR_STACK_MSG_PREFIX = "@ErrorStack> ";
+
+        function objectDisplayFormat(obj) {
+            // if argument is Error instance, show message and error stack.
+            if (obj instanceof Error) {
+                if (!obj.stack) {
+                    return ERROR_OBJ_MSG_PREFIX + obj.message;
+                }
+
+                // if error stack has same string as error.message, just return stack string.
+                return  obj.stack.indexOf(obj.message) !== -1 ? ERROR_STACK_MSG_PREFIX + obj.stack
+                    : ERROR_OBJ_MSG_PREFIX + obj.message + "\n" + ERROR_STACK_MSG_PREFIX + obj.stack;
+            }
+
+            // if argument is object that can be converted to JSON, display it as JSON format string.
+            if (util.isStrictObject(obj)) {
+                return JSON.stringify(obj, null, 4);
+            }
+
+            return obj;
+        }
+
         return {
             build: function(logParam) {
-                return util.stringFormat("[{0}][{1}]{2}", logParam.category, logParam.level, logParam.message);
+                var resultMsg = "",
+                    len = logParam.args.length;
+
+                for (var i = 0; i < len; i++) {
+                    resultMsg += objectDisplayFormat(logParam.args[i]);
+                    if (i < len - 1) { resultMsg += "\n"; }
+                }
+
+                return util.stringFormat("[{0}][{1}]{2}", logParam.category, logParam.level, resultMsg);
             }
         };
     }
@@ -252,10 +274,19 @@
         }
 
         function createLoggerAPI(level, levelText) {
-            return function(msg) {
-                if (this.check(level)) {
-                    this.write(msg, levelText);
+            // below function will be logger methods(trace, debug, info, warn, error, fatal)
+            return function() {
+                if (!this.check(level)) {
+                    return;
                 }
+
+                var logText = this.formatter.build({
+                    category: this.category,
+                    level: levelText,
+                    args: arguments
+                });
+
+                this.logDriver.log(levelText, logText);
             };
         }
     }
