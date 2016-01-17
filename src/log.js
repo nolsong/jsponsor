@@ -238,7 +238,36 @@
             }
         };
     }
-    // TODO: add another formatter for various format(XML, JSON and so on)
+
+    function createJSONFormatter() {
+
+        return {
+            build: function(logParam) {
+                var formatObj = {
+                    category: logParam.category,
+                    logLevel: logParam.level
+                };
+
+                if (logParam.args && logParam.args.length) {
+                    var len = logParam.args.length;
+
+                    if (len > 1) {
+                        formatObj.message = {};
+
+                        for (var i = 0; i < len; i++) {
+                            formatObj.message['arg' + i] = logParam.args[i];
+                        }
+                    } else {
+                        formatObj.message = logParam.args[0];
+                    }
+                }
+
+                return JSON.stringify(formatObj, null, 4);
+            }
+        };
+    }
+
+    // TODO: add another formatter for various format(XML, HTML and so on)
 
     /*
         log driver
