@@ -7,10 +7,11 @@
     var router = jSponsor.router,
         injector = jSponsor.injector,
         util = jSponsor.util,
+        exception = jSponsor.exception,
         logger = jSponsor.logService.getLogger();
 
     var uiInstances = [],
-        uiErr = util.errorFactory('UI Manager');
+        uiErr = exception.errorFactory('UI Manager');
 
     /*
         Regular expressions
@@ -51,7 +52,7 @@
                         // if not any case, this view has no controller
                     }
                 } catch(e) {
-                    util.exceptionHandle(e);
+                    exception.exceptionHandle(e);
                 }
 
                 if (cbLoaded) {
@@ -150,7 +151,7 @@
                 cRootNode.update(property, value, path);
             });
         } catch(e) {
-            util.exceptionHandle(e);
+            exception.exceptionHandle(e);
         }
 
 

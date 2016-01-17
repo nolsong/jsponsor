@@ -4,8 +4,8 @@
     /*
         short cuts
      */
-    var util = jSponsor.util;
-    var routeErr = util.errorFactory('Router');
+    var exception = jSponsor.exception;
+    var routeErr = exception.errorFactory('Router');
 
     /*
         constants

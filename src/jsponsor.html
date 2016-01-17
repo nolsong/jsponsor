@@ -1,6 +1,7 @@
 <script type="text/javascript" src="base.js"></script>
 <script type="text/javascript" src="util.js"></script>
 <script type="text/javascript" src="log.js"></script>
+<script type="text/javascript" src="exception.js"></script>
 <script type="text/javascript" src="fileSystem.js"></script>
 <script type="text/javascript" src="router.js"></script>
 <script type="text/javascript" src="connector.js"></script>
@@ -16,7 +17,7 @@
         try {
             return config ? this.appManager.createApplication(appName, config) : this.appManager.getApplication(appName);
         } catch(e) {
-            jSponsor.util.exceptionHandle(e);
+            jSponsor.exception.exceptionHandle(e);
         }
     };
 
@@ -24,7 +25,7 @@
         try {
             return requires ? this.pkgMgr.createPackage(packName, requires) : this.pkgMgr.getPackage(packName);
         } catch(e) {
-            jSponsor.util.exceptionHandle(e);
+            jSponsor.exception.exceptionHandle(e);
         }
     };
 </script>

@@ -111,23 +111,6 @@
 
                 return paramArgs.length > index ? paramArgs[index] : matched;
             });
-        },
-        errorFactory: function(moduleName) {
-
-            return function(errType) {
-                var errText = '[' + moduleName + '][' + errType + ']',
-                    errMsgArgs = [];
-
-                for (var i = 1; i < arguments.length; i++) {
-                    errMsgArgs.push(arguments[i]);
-                }
-                errText += util.stringFormat.apply(this, errMsgArgs);
-                return new Error(errText);
-            };
-        },
-        exceptionHandle: function(exception) {
-            //TODO: implement exception handler...
-            console.error(exception.message);
         }
     };
 

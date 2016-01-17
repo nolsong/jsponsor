@@ -5,6 +5,7 @@
         short cut
      */
     var util = jSponsor.util,
+        exception = jSponsor.exception,
         logger = jSponsor.logService.getLogger();
 
     var connector = {
@@ -12,7 +13,7 @@
         socketFactory: createSocketFactory(),
         remoteModel: createRESTFactory()
     };
-    var connectorErr = util.errorFactory('Connector');
+    var connectorErr = exception.errorFactory('Connector');
 
 
     /*

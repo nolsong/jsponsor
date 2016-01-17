@@ -7,8 +7,8 @@
 (function() {
     'use strict';
 
-    var util = jSponsor.util;
-    var injectorErr = util.errorFactory('Injector');
+    var exception = jSponsor.exception;
+    var injectorErr = exception.errorFactory('Injector');
 
     var dependencyInfo = {
             controller: {},

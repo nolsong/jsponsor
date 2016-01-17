@@ -12,9 +12,10 @@
         shortcuts
      */
     var util = jSponsor.util,
+        exception = jSponsor.exception,
         logger = jSponsor.logService.getLogger();
 
-    var packErr = util.errorFactory('Package');
+    var packErr = exception.errorFactory('Package');
 
     // cache
     var packages = {};

@@ -17,12 +17,12 @@
         setController = jSponsor.injector.setController.bind(jSponsor.injector),
         registerRoute = jSponsor.router.register.bind(jSponsor.router);
 
-    var util = jSponsor.util;
+    var exception = jSponsor.exception;
 
     /*
         private module error
      */
-    var appErr = util.errorFactory('App');
+    var appErr = exception.errorFactory('App');
 
 
     /*
@@ -57,7 +57,7 @@
             var componentBuilder = createComponentBuilder(mainPackage);
             componentBuilder.buildPackageComponents();
         } catch(e) {
-            util.exceptionHandle(e);
+            exception.exceptionHandle(e);
         }
 
 
