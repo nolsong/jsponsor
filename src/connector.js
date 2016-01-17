@@ -267,7 +267,7 @@
                     clientCallbacks.close && clientCallbacks.close();
                 };
                 ws.onerror = function(e) {
-                    logger.info("-------- WebSocket onerror! ---------");
+                    logger.error("-------- WebSocket onerror! ---------");
                     clientCallbacks.error && clientCallbacks.error(e);
                 };
                 ws.onmessage = function(e) {

@@ -201,7 +201,7 @@
                 message: msg
             });
 
-            this.logDriver.log(logText);
+            this.logDriver.log(levelText, logText);
         }
     };
 
@@ -226,8 +226,8 @@
         var myConsole = window.console || {log: util.noop};
 
         return {
-            log: function(text) {
-                myConsole.log(text);
+            log: function(levelText, text) {
+                util.isFunction(myConsole[levelText]) ? myConsole[levelText](text) : myConsole.log(text);
             }
         };
     }
