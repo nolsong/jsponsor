@@ -111,6 +111,20 @@
 
                 return paramArgs.length > index ? paramArgs[index] : matched;
             });
+        },
+        iterate: function(obj, fn) {
+            if (!obj || typeof fn !== 'function') { return; }
+
+            Object.keys(obj).forEach(function(key) {
+                fn(key, obj[key]);
+            });
+        },
+        getIdPublisher: function() {
+            var currId = 0;
+
+            return function () {
+                return '$' + currId++;
+            };
         }
     };
 

@@ -38,7 +38,8 @@
         var buildData = {
             views: {},
             controllers: {},
-            services: {}
+            services: {},
+            workers: {}
         };
 
         requirePackages = util.makeArray(requirePackages);
@@ -67,6 +68,10 @@
                     constructor: constructor
                 };
                 return this;
+            },
+            worker: function(name, constructor) {
+                // custom worker can not use services
+                buildData.workers[name] = constructor;
             },
             unpack: function() {
                 return buildData;
@@ -120,6 +125,7 @@
             util.extend(dest.views, target.views);
             util.extend(dest.controllers, target.controllers);
             util.extend(dest.services, target.services);
+            util.extend(dest.workers, target.workers);
         }
     }
 })();

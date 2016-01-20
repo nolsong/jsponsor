@@ -12,7 +12,10 @@
         <ul js-loop="text in order.list">
             <li>{{text}}<span>{{sub}}</span> {{user.getAge() + 1 + ' years old'}}</li>
         </ul>
-        <label>socket message counting : {{count}}</label>
+        <lable>sort number: {{sortStatus}}</lable>
+        <p><b>{{sortNum}}</b></p>
+        <label>socket message
+            e counting : {{count}}</label>
 
         <div style="height: 100px;outline-style:dotted">
             remote Book's title: <input type="text" model="bookTitle">

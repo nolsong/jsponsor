@@ -12,20 +12,26 @@
 
     var dependencyInfo = {
             controller: {},
-            service: {}
-        },
-        cache = {
-            service: {}
+            service: {},
+            worker: {}
+        };
+
+    // cache for singleton instance
+    var cache = {
+            service: {},
+            worker: {}
         };
 
     var injector = jSponsor.injector = {
         flush: function() {
             dependencyInfo = {
                 controller: {},
-                service: {}
+                service: {},
+                worker: {}
             };
             cache = {
-                service: {}
+                service: {},
+                worker: {}
             };
         },
         setController: function(name, dependencyList, constructor) {
@@ -70,11 +76,33 @@
 
             var createInfo = dependencyInfo.service[name];
             if (!createInfo) {
-                throw injectorErr('not found', 'can not found {0} service', name);
+                return;
             }
 
             var instance = createInfo.constructor.apply(null, resolveDependency(createInfo.dependency));
             cache.service[name] = instance;
+
+            return instance;
+        },
+        setWorker: function(name, constructor) {
+            dependencyInfo.worker[name] = constructor;
+        },
+        getWorker: function(name) {
+            var cached = cache.worker[name];
+            if (cached) { return cached; }
+
+            var constructor = dependencyInfo.worker[name];
+            if (!constructor) {
+                return;
+            }
+
+            var instance;
+            try {
+                instance = jSponsor.worker.createWorker(constructor);
+                cache.worker[name] = instance;
+            } catch(e) {
+                exception.exceptionHandle(e);
+            }
 
             return instance;
         }
@@ -102,8 +130,13 @@
             case '$log':
                 return jSponsor.logService;
         }
-        // if not, this will be user custom service
-        return injector.getService(name);
+        // if not, this will be user custom service or worker
+        var target = injector.getService(name) || injector.getWorker(name);
+        if (!target) {
+            throw injectorErr('not found', 'can not found {0} : dependent object', name);
+        }
+
+        return target;
     }
     function resolveDependency(depList) {
         if (!depList || depList.length === 0) {

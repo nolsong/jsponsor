@@ -15,9 +15,11 @@
     var registerViewComponent = jSponsor.ui.registerViewComponent.bind(jSponsor.ui),
         setService = jSponsor.injector.setService.bind(jSponsor.injector),
         setController = jSponsor.injector.setController.bind(jSponsor.injector),
+        setWorker = jSponsor.injector.setWorker.bind(jSponsor.injector),
         registerRoute = jSponsor.router.register.bind(jSponsor.router);
 
-    var exception = jSponsor.exception;
+    var exception = jSponsor.exception,
+        util = jSponsor.util;
 
     /*
         private module error
@@ -79,6 +81,10 @@
                 mainPackage.service(name, dependency, constructor);
                 componentBuilder.buildService(name, dependency, constructor);
             },
+            worker: function(name, constructor) {
+                mainPackage.worker(name, constructor);
+                componentBuilder.buildWorker(name, constructor);
+            },
             route: function(routeInfos) {
                 registerRoute(routeInfos);
             }
@@ -99,14 +105,17 @@
             buildPackageComponents: function() {
                 var self = this;
 
-                iterate(componentBuildData.views, function(viewName, buildData) {
+                util.iterate(componentBuildData.views, function(viewName, buildData) {
                     self.buildView(viewName, buildData);
                 });
-                iterate(componentBuildData.controllers, function(ctrlName, buildData) {
+                util.iterate(componentBuildData.controllers, function(ctrlName, buildData) {
                     self.buildController(ctrlName, buildData.dependency, buildData.constructor);
                 });
-                iterate(componentBuildData.services, function(srvName, buildData) {
+                util.iterate(componentBuildData.services, function(srvName, buildData) {
                     self.buildService(srvName, buildData.dependency, buildData.constructor);
+                });
+                util.iterate(componentBuildData.workers, function(workerName, buildData) {
+                    self.buildWorker(workerName, buildData);
                 });
             },
             buildView: function(name, param) {
@@ -123,6 +132,9 @@
             },
             buildService: function(name, dependency, constructor) {
                 setService(name, dependency, constructor);
+            },
+            buildWorker: function(name, constructor) {
+                setWorker(name, constructor);
             }
         };
 
@@ -131,13 +143,6 @@
          */
         function isPackage(pack) {
             return !!(pack && pack.unpack);
-        }
-        function iterate(obj, fn) {
-            if (!obj || typeof fn !== 'function') { return; }
-
-            Object.keys(obj).forEach(function(key) {
-                fn(key, obj[key]);
-            });
         }
     }
 

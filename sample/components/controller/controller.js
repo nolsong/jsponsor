@@ -2,7 +2,7 @@
     'use strict';
 
     var pack = jSponsor.package('testPackage');
-    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product', '$log'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct, $log) {
+    pack.controller('myController', ['$viewModel', '$router', '$http', '$socketFactory', '$remoteModel', 'product', '$log', 'sortWorker'], function(viewModel, router, http, socketFactory, remoteModel, srvProduct, $log, sortWorker) {
         var logger = $log.getLogger('myController');
 
         logger.info(">> testPackage:myController is created!, product name: " + srvProduct.getName());
@@ -26,11 +26,34 @@
             viewModel.order.list[0] = 'changed';
             viewModel.order.list.push('FOURTH');
             viewModel.order.list.push('FIVETH');
-        }, 3000);
+        }, 1000);
 
         viewModel.movePage = function() {
             router.location('/secondPage');
         };
+
+        // test code for worker
+        viewModel.sortStatus = "processing...";
+        viewModel.sortNum = makeRandomNumber(100000, 1000000);
+        viewModel.sortCode = sortWorker.code;
+
+        sortWorker.bubbleSort(viewModel.sortNum).then(function(result) {
+            viewModel.sortNum = result;
+            viewModel.sortStatus = "completed!";
+        }, function() {
+            viewModel.sortNum = [];
+            viewModel.sortStatus = "error occurred";
+        });
+
+        function makeRandomNumber(count, max) {
+            var result = [];
+
+            for(var i = 0; i < count; i += 1) {
+                result.push(Math.floor(Math.random() * (max + 1)));
+            }
+
+            return result;
+        }
 
         // test code for http connection
         http('GET', 'http://localhost:8080/sample/test/get/echo', {
