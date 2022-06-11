@@ -1,6 +1,6 @@
 {
   "name": "jsponsor",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "javascript front-end framework",
   "devDependencies": {
       "karma": "^0.13.14",
